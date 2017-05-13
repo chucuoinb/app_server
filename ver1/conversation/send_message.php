@@ -34,12 +34,13 @@ if (isset($_POST[CONVERSATION_ID]) && isset($_POST[MESSAGE]) && isset($_POST[TOK
             $firebase = new Firebase();
             $res = $firebase->send($listToken, $pushNotify);
             if ($res) {
-                ResponseMessage(CODE_OK, "OK", null);
+                responseMessage(CODE_OK, "OK", null);
             } else
-                ResponseMessage(CODE_ERROR, "error", null);
+                responseMessage(CODE_ERROR, "error", null);
         } else
-            ResponseMessage(CODE_OK, "ok", null);
-    }
+            responseMessage(CODE_OK, "ok", null);
+    }else
+        responseMessage(CODE_FAIL, $_POST[TOKEN], null);
 } else
-    ResponseMessage(CODE_FAIL, "fail", null);
+    responseMessage(CODE_FAIL, "fail data", null);
 ?>

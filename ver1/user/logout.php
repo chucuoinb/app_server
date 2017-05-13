@@ -12,11 +12,11 @@ if (isset($_POST[TOKEN])) {
     $id = getIdUsernameByToken($token);
     if ($id) {
         if (logout($id))
-            ResponseMessage(CODE_OK, "", null);
+            responseMessage(CODE_OK, "", null);
         else
-            ResponseMessage(CODE_FAIL, "Token sai", null);
+            responseMessage(CODE_FAIL, "Token sai", null);
     } else {
-        ResponseMessage(CODE_FAIL, "Token sai", null);
+        responseMessage(CODE_OK, "Token sai", null);
     }
 } else
-    ResponseMessage(CODE_ERROR, "Chưa nhập dữ liệu", null);
+    responseMessage(CODE_ERROR, "Chưa nhập dữ liệu", null);

@@ -7,7 +7,6 @@
  */
 require_once("../operation/const.php");
 require_once("../operation/Operation.php");
-echo $token;
 if (isset($_POST[SEARCH]) && isset($_POST[TOKEN])) {
     $token = $_POST[TOKEN];
     $textSearch = $_POST[SEARCH];
@@ -15,11 +14,11 @@ if (isset($_POST[SEARCH]) && isset($_POST[TOKEN])) {
 
         $res = searchFriend($textSearch);
         if ($res) {
-            ResponseMessage(CODE_OK, "44", $res);
+            responseMessage(CODE_OK, "44", $res);
         } else
-            ResponseMessage(CODE_FAIL, "33", null);
+            responseMessage(CODE_FAIL, "33", null);
     } else
-        ResponseMessage(CODE_ERROR, "22", null);
+        responseMessage(CODE_ERROR, "22", null);
 
 } else
-    ResponseMessage(CODE_ERROR, "11", null);
+    responseMessage(CODE_ERROR, "11", null);

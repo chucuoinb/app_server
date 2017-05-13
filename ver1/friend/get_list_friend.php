@@ -13,8 +13,8 @@ require_once("../operation/Operation.php");
 if(isset($_GET[TOKEN])){
     $res = getListFriend($_GET[TOKEN]);
     if($res){
-        ResponseMessage(CODE_OK,"success",$res);
+        responseMessage(CODE_OK,"success",$res);
     }else
-        ResponseMessage(CODE_FAIL,"fail",null);
+        responseMessage(CODE_FAIL,"fail",null);
 }else
-    ResponseMessage(CODE_ERROR,"Du lieu loi",null);
+    responseMessage(CODE_ERROR,"Du lieu loi",null);

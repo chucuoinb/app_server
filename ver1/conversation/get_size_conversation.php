@@ -11,8 +11,8 @@ if (isset($_GET[CONVERSATION_ID])) {
     $id = $_GET[CONVERSATION_ID];
     $res = getSizeConversation($id);
     if ($res) {
-        ResponseMessage(CODE_OK, "", $res);
+        responseMessage(CODE_OK, "", $res);
     } else
-        ResponseMessage(CODE_FAIL, "failure", null);
+        responseMessage(CODE_FAIL, "failure", null);
 } else
-    ResponseMessage(CODE_FAIL, "failure", null);
+    responseMessage(CODE_FAIL, "failure", null);

@@ -10,8 +10,8 @@ require_once("../operation/Operation.php");
 if(isset($_GET[TOKEN])){
     $token = $_GET[TOKEN];
     $res = getListRequestFriend($token);
-        ResponseMessage(CODE_OK,"success",$res);
+        responseMessage(CODE_OK,"success",$res);
 }
 else{
-    ResponseMessage(CODE_ERROR,"error",null);
+    responseMessage(CODE_ERROR,"error",null);
 }

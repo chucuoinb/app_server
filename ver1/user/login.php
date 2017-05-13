@@ -14,19 +14,19 @@ if(isset($_POST[USERNAME]) && isset($_POST[PASSWORD]) && isset($_POST[FCM_TOKEN]
     $fcm_token = $_POST[FCM_TOKEN];
     if(IsUserExisted($username))
     {
-        $token = Login($username,$password,$fcm_token);
+        $token = Login($username,md5($password),$fcm_token);
         if($token)
         {
             $id = getIdUsernameByToken($token);
             $data = getInfoUserById($id);
             $data[TOKEN] = $token;
-            ResponseMessage(CODE_OK,"",$data);
+            responseMessage(CODE_OK,"",$data);
         }else
-            ResponseMessage(CODE_FAIL,"not match",null);
+            responseMessage(CODE_FAIL,"not match",null);
     }else
-        ResponseMessage(CODE_USER_NOT_EXIST,"",null);
+        responseMessage(CODE_USER_NOT_EXIST,"username exist",null);
 }
 else{
-    ResponseMessage(CODE_USER_NOT_EXIST,"eeee",null);
+    responseMessage(CODE_USER_NOT_EXIST,"Thiếu dữ liệu",null);
 }
 ?>

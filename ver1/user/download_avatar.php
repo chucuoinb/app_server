@@ -13,4 +13,4 @@ $target_dir = "uploads/";
 $target_file = $target_dir . basename("abcde.png");
 $image = file_get_contents($target_file);
 $string = base64_encode($image);
-ResponseMessage(CODE_OK,"success",$string);
+responseMessage(CODE_OK,"success",$string);

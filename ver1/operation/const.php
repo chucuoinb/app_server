@@ -25,6 +25,9 @@
     define("STATUS_SUCCESS", "success");
     define("STATUS_FAIL", "fail");
     define("STATUS_ERROR", "error");
+    define("STATUS_LIKE", "status_like");
+    define("STATUS_COMMENT", "status_comment");
+    define("STATUS_ID", "status_id");
     define("USERNAME", "username");
     define("USERNAME_SEND", "username_send");
     define("USERNAME_RECEIVE", "username_receive");
@@ -46,6 +49,8 @@
     define("SEARCH","search");
     define("STATUS","status");
     define("TIME","time");
+    define("TIME_POST","time_post");
+    define("TYPE_LIKE","type_like");
 //code
 {
     define("CODE_UNKNOW",300);
@@ -65,7 +70,13 @@
     define("CODE_USER_NOT_EXIST", 106);
 
 
-    define("NUMBER_EACH_PAGE", 20);
+    define("NUMBER_EACH_PAGE", 6);
     define("PAGE", "page");
+
+    define("STA_LIKE",1);
+    define("STA_UNLIKE",2);
+    define("NUMBER_LIKE","number_like");
+    define("IS_LIKE","number_like");
+    define("NUMBER_COMMENT","number_comment");
 }
 ?>

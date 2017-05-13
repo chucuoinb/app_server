@@ -30,9 +30,9 @@ if (isset($_POST[TOKEN])) {
             $index++;
         }
         if ($result)
-            ResponseMessage(CODE_OK, "ok", $listSuccess);
+            responseMessage(CODE_OK, "ok", $listSuccess);
         else
-            ResponseMessage(CODE_FAIL, "failure", $listSuccess);
+            responseMessage(CODE_FAIL, "failure", $listSuccess);
     } else
-        ResponseMessage(CODE_FAIL, "failure", $listSuccess);
-} else  ResponseMessage(CODE_ERROR, "failure", null);
+        responseMessage(CODE_FAIL, "failure", $listSuccess);
+} else  responseMessage(CODE_ERROR, "failure", null);

@@ -14,14 +14,14 @@ if (isset($_POST[TOKEN]) && isset($_POST[STATUS])){
     if ($id){
         $res = addNewStatus($id,$status);
         if ($res)
-            ResponseMessage(CODE_OK,"ok",null);
+            responseMessage(CODE_OK,"ok",null);
         else
-            ResponseMessage(CODE_ERROR,"lỗi",null);
+            responseMessage(CODE_ERROR,"lỗi",null);
     }
     else{
-        ResponseMessage(CODE_ERROR,"token sai",null);
+        responseMessage(CODE_ERROR,"token sai",null);
     }
 }
 else{
-    ResponseMessage(CODE_FAIL,"Chưa nhập dữ liệu",null);
+    responseMessage(CODE_FAIL,"Chưa nhập dữ liệu",null);
 }

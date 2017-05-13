@@ -34,7 +34,6 @@ function fnQuery($sql)
         return false;
     } else {
         $res = $db->query($sql);
-//        $db->close();
         return $res;
     }
 
@@ -42,11 +41,12 @@ function fnQuery($sql)
 
 function StoreUser($username, $password, $email, $displayname, $birthday, $gender)
 {
+    $time = time();
     $mysqli = connect();
-    $sql = "INSERT INTO account (username,password,email,displayname,birthday,gender)
-                VALUES (?,?,?,?,?,?)";
+    $sql = "INSERT INTO account (username,password,email,displayname,birthday,gender,time_create)
+                VALUES (?,?,?,?,?,?,?)";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param("sssssi", $username, $password, $email, $displayname, $birthday, $gender);
+    $stmt->bind_param("sssssii", $username, $password, $email, $displayname, $birthday, $gender, $time);
 
     $result = $stmt->execute();
     $stmt->close();
@@ -174,7 +174,7 @@ function IsTokenEsixt($token)
  * @param $message
  * @param $data
  */
-function ResponseMessage($code, $message, $data)
+function responseMessage($code, $message, $data)
 {
     $response = array();
     $response[CODE] = $code;
@@ -464,13 +464,21 @@ function addMessageToWaitMessage($conversation_id, $message, $idSend, $idReceive
 function addRequestFriend($id_request, $id_receive, $message)
 {
 //        $mysqli = connect();
+    if (!isExistRequestFriend($id_request,$id_receive)){
+
     $sql = "INSERT INTO wait_request_friend
                 (id_request,id_receive,message)
                 VALUES ('$id_request','$id_receive','$message')";
-    $res = fnQuery($sql);
-    if ($res)
-        return true;
-    return false;
+    return fnQuery($sql);
+    }
+    else return true;
+}
+
+function isExistRequestFriend($id_request,$id_receive){
+    $sql = 'select * from wait_request_friend
+            where id_request = '.$id_request.'
+            and id_receive = '.$id_receive;
+    return mysqli_num_rows(fnQuery($sql));
 }
 
 function getIdRequestFriend($id_receive, $id_request)
@@ -699,7 +707,8 @@ function isExistIdFriend($id)
 {
     $sql = "select *
             from friend
-            WHERE id = '" . $id . "'";
+            WHERE id = '" . $id . "'
+       ";
     $res = fnQuery($sql);
     if (mysqli_num_rows($res) > 0) {
         return true;
@@ -707,16 +716,16 @@ function isExistIdFriend($id)
         return false;
 }
 
-function isExistRequestFriend($id_request, $id_receive)
-{
-    $sql = "select *
-            from wait_request_friend
-            where id_request = '" . $id_request . "'
-            and id_receive = '" . $id_receive . "'";
-    $res = fnQuery($sql);
-    return mysqli_num_rows($res) > 0;
-
-}
+//function isExistRequestFriend($id_request, $id_receive)
+//{
+//    $sql = "select *
+//            from wait_request_friend
+//            where id_request = '" . $id_request . "'
+//            and id_receive = '" . $id_receive . "'";
+//    $res = fnQuery($sql);
+//    return mysqli_num_rows($res) > 0;
+//
+//}
 
 function searchFriend($name)
 {
@@ -734,38 +743,96 @@ function searchFriend($name)
             $list[] = $temp;
 
         }
-        return $list;
+    }
+
+    return $list;
+}
+
+function loadStatus1($page, $token)
+{
+    $listStatus = array();
+    if ((int)$page == 0)
+        $start = 1;
+    else
+        $start = (int)($page * NUMBER_EACH_PAGE);
+    echo $start;
+    $end = (int)($start + NUMBER_EACH_PAGE);
+    $listId = getListFriend($token);
+    if ($listId) {
+        $id = "(";
+        for ($i = 0; $i < count($listId); $i++) {
+            $id = $id . $listId[$i][ID];
+
+            if ($i != count($listId) - 1) {
+                $id = $id . ",";
+            }
+        }
+        $id = $id . ")";
+        $sql = "select * 
+                from status
+                where id_username 
+                in $id 
+                order by time_post desc limit $start,$end";
+        $res = fnQuery($sql);
+//        mysqli_fetch_assoc($res);
+        if (mysqli_num_rows($res) > 0) {
+            while ($temp = mysqli_fetch_assoc($res)) {
+                $listStatus[] = json_encode($temp);
+            }
+            return $listStatus;
+        }
     } else
         return false;
 
 }
+
 
 function loadStatus($page, $id)
 {
     $list = array();
     $start = (int)($page * NUMBER_EACH_PAGE);
     $end = (int)($start + NUMBER_EACH_PAGE);
-    $sql = "select * from status
+    $sql = 'select * from status
             where id_username in 
+          
             (select id_username 
             from friend
-            WHERE id_userfriend = '" . $id . "')
+            WHERE id_userfriend = ' . $id . ')
             or
             id_username in
             (select id_userfriend 
             from friend
-            WHERE id_username = '" . $id . "'
+            WHERE id_username = ' . $id . '
             )
             order by time_post desc
-            limit $start,$end
-            ";
+            limit ' . $start . ',' . NUMBER_EACH_PAGE;
     $res = fnQuery($sql);
     if (mysqli_num_rows($res) > 0) {
-        while ($item = mysqli_fetch_assoc($res)) {
-            $list[] = $item;
+        while ($temp = mysqli_fetch_assoc($res)) {
+            $id_status = $temp[ID];
+            $temp[NUMBER_LIKE] = countLike($id_status);
+            $temp[NUMBER_COMMENT] = countComment($id_status);
+            $is_like = isLikeStatus($id,$id_status);
+            if ($is_like)
+                $temp[TYPE_LIKE] = $is_like;
+            else
+                $temp[TYPE_LIKE] = STA_UNLIKE;
+            $list[] = $temp;
         }
     }
     return $list;
+}
+
+function countLike($id){
+    $sql = 'select * from status_like
+            where status_id = '.$id;
+    return mysqli_num_rows(fnQuery($sql));
+}
+
+function countComment($id){
+    $sql = 'select * from status_comment
+            where status_id = '.$id;
+    return mysqli_num_rows(fnQuery($sql));
 }
 
 function loadNewStatus($time, $id)
@@ -793,7 +860,7 @@ function loadNewStatus($time, $id)
     $res = fnQuery($sql);
     if (mysqli_num_rows($res) > 0) {
         while ($item = mysqli_fetch_assoc($res)) {
-            $list[] = $item;
+            $list[] = json_encode($item);
         }
     }
     return $list;
@@ -814,11 +881,84 @@ function addNewStatus($id, $status)
         return false;
 
 }
-function logout($id){
-    $sql = "update account set
-            token = '',
-            fcm_token=''
-            WHERE id = '".$id."'";
+
+function logout($id)
+{
+    $sql = 'update account set' .
+        ' token = "",' .
+        ' fcm_token=""' .
+        ' WHERE id = ' . $id;
     return fnQuery($sql);
+}
+
+function isExistStatus($id)
+{
+    $sql = 'select *' .
+        ' from status' .
+        ' where id = ' . $id;
+    $res = fnQuery($sql);
+    return mysqli_num_rows($res) > 0;
+
+}
+
+function isLikeStatus($id_username, $id_status)
+{
+    $sql = 'select * from status_like
+            where status_id = ' . $id_status . '
+            and id_username = ' . $id_username;
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res) > 0) {
+        return mysqli_fetch_assoc($res)[TYPE_LIKE];
+    } else
+        return false;
+}
+
+function changeLikeStatus($id_username, $id_status)
+{
+    $id = isLikeStatus($id_username, $id_status);
+    $type_like = $id==STA_LIKE?STA_UNLIKE:STA_LIKE;
+    if ($id) {
+        $sql = 'update status_like
+                set type_like = '.$type_like.'
+                where id_username = '.$id_username.'
+                and status_id = '.$id_status;
+        $res = fnQuery($sql);
+        if ($res)
+            return true;
+        else
+            return
+                false;
+    } else
+        return false;
+}
+
+function likeStatus($id_username, $id_status)
+{
+    if (isLikeStatus($id_username,$id_status))
+        return changeLikeStatus($id_username,$id_status);
+    else{
+        $sql = 'insert into status_like
+                (id_username,status_id,typy_like)
+                VALUES 
+                ('.$id_username.','.$id_status.','.STA_LIKE.')';
+        return fnQuery($sql);
+    }
+}
+
+function getComment($id){
+    $list = array();
+    $sql = 'select * from status_comment
+            where status_id = '.$id;
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res)>0){
+        while ($temp = mysqli_fetch_assoc($res)){
+            $id_username = $temp[ID_USERNAME];
+            $user = getInfoUserById($id_username);
+            $temp[USERNAME] = $user[USERNAME];
+            $temp[DISPLAYNAME] = $user[DISPLAYNAME];
+            $list[] = $temp;
+        }
+    }
+    return $list;
 }
 ?>

@@ -30,15 +30,15 @@ if(isset($_POST[ID_RECEIVE]) && isset($_POST[TOKEN])){
                 $firebase = new Firebase();
                 $res = $firebase->send($list_fcm_receive_request, $pustNotify);
                 if ($res) {
-                    ResponseMessage(CODE_OK, "success", null);
+                    responseMessage(CODE_OK, "success", null);
                 } else
-                    ResponseMessage(CODE_FAIL, "fail", null);
+                    responseMessage(CODE_FAIL, "fail", null);
             }else
-                ResponseMessage(CODE_ERROR, "don't have FCM token", null);
+                responseMessage(CODE_ERROR, "don't have FCM token", null);
         }
         else
-            ResponseMessage(CODE_ERROR, "don't add", null);
+            responseMessage(CODE_ERROR, "don't add", null);
     }else
-        ResponseMessage(CODE_ERROR, "token k ton tai", null);
+        responseMessage(CODE_ERROR, "token k ton tai", null);
 }else
-    ResponseMessage(CODE_ERROR, "duu lieu loi", null);
+    responseMessage(CODE_ERROR, "duu lieu loi", null);

@@ -14,7 +14,7 @@ if(isset($_GET[TOKEN])){
     $token = $_GET[TOKEN];
     $res = getListConversation($token);
     if($res) {
-        ResponseMessage(CODE_OK,"",$res);
+        responseMessage(CODE_OK,"",$res);
     }else
-        ResponseMessage(CODE_FAIL, "fail", null);
+        responseMessage(CODE_FAIL, "fail", null);
 }

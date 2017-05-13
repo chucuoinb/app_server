@@ -18,9 +18,9 @@ if (isset($_POST[TOKEN]) && isset($_POST[ID_USERFRIEND."0"])) {
     $name = (isset($_POST[NAME_CONVERSATION])) ? $_POST[NAME_CONVERSATION] : "";
     $id = addNewConversation($token, $list_friend, $name);
     if ($id)
-        ResponseMessage(CODE_OK, "ok", $id);
+        responseMessage(CODE_OK, "ok", $id);
     else
-        ResponseMessage(CODE_ERROR, "error", null);
+        responseMessage(CODE_ERROR, "error", null);
 
 } else
-    ResponseMessage(CODE_ERROR, "error", null);
+    responseMessage(CODE_ERROR, "error", null);
