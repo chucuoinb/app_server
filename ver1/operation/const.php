@@ -51,6 +51,7 @@
     define("TIME","time");
     define("TIME_POST","time_post");
     define("TYPE_LIKE","type_like");
+    define("COMMENT","comment");
 //code
 {
     define("CODE_UNKNOW",300);

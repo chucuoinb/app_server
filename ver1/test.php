@@ -11,4 +11,4 @@ $target_file = $target_dir . basename("abcde.png");
 //    responseMessage(CODE_OK,"",$list);
 //else
 //    responseMessage(CODE_FAIL,"",null);
-echo countLike(25);
+echo countLike(27);

@@ -464,20 +464,20 @@ function addMessageToWaitMessage($conversation_id, $message, $idSend, $idReceive
 function addRequestFriend($id_request, $id_receive, $message)
 {
 //        $mysqli = connect();
-    if (!isExistRequestFriend($id_request,$id_receive)){
+    if (!isExistRequestFriend($id_request, $id_receive)) {
 
-    $sql = "INSERT INTO wait_request_friend
+        $sql = "INSERT INTO wait_request_friend
                 (id_request,id_receive,message)
                 VALUES ('$id_request','$id_receive','$message')";
-    return fnQuery($sql);
-    }
-    else return true;
+        return fnQuery($sql);
+    } else return true;
 }
 
-function isExistRequestFriend($id_request,$id_receive){
+function isExistRequestFriend($id_request, $id_receive)
+{
     $sql = 'select * from wait_request_friend
-            where id_request = '.$id_request.'
-            and id_receive = '.$id_receive;
+            where id_request = ' . $id_request . '
+            and id_receive = ' . $id_receive;
     return mysqli_num_rows(fnQuery($sql));
 }
 
@@ -812,7 +812,7 @@ function loadStatus($page, $id)
             $id_status = $temp[ID];
             $temp[NUMBER_LIKE] = countLike($id_status);
             $temp[NUMBER_COMMENT] = countComment($id_status);
-            $is_like = isLikeStatus($id,$id_status);
+            $is_like = isLikeStatus($id, $id_status);
             if ($is_like)
                 $temp[TYPE_LIKE] = $is_like;
             else
@@ -823,15 +823,18 @@ function loadStatus($page, $id)
     return $list;
 }
 
-function countLike($id){
+function countLike($id)
+{
     $sql = 'select * from status_like
-            where status_id = '.$id;
+            where status_id = ' . $id . '
+            and type_like = ' . STA_LIKE;
     return mysqli_num_rows(fnQuery($sql));
 }
 
-function countComment($id){
+function countComment($id)
+{
     $sql = 'select * from status_comment
-            where status_id = '.$id;
+            where status_id = ' . $id;
     return mysqli_num_rows(fnQuery($sql));
 }
 
@@ -855,12 +858,34 @@ function loadNewStatus($time, $id)
             ))
             and time_post>'" . $time . "'
             order by time_post desc
+            limit $start,'".NUMBER_EACH_PAGE."'
+            ";
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res) > 0) {
+        while ($item = mysqli_fetch_assoc($res)) {
+            $list[] = $item;
+        }
+    }
+    return $list;
+}
+
+function loadNewStatusFriend($time, $fri_id)
+{
+    $list = array();
+    $start = (int)(0 * NUMBER_EACH_PAGE);
+    $end = (int)($start + NUMBER_EACH_PAGE);
+    $sql = "select * 
+            from 
+            status
+            where id_username = '" . $fri_id . "'
+            and time_post>'" . $time . "'
+            order by time_post desc
             limit $start,$end
             ";
     $res = fnQuery($sql);
     if (mysqli_num_rows($res) > 0) {
         while ($item = mysqli_fetch_assoc($res)) {
-            $list[] = json_encode($item);
+            $list[] = $item;
         }
     }
     return $list;
@@ -876,10 +901,22 @@ function addNewStatus($id, $status)
             ('" . $status . "','" . $id . "','" . $time . "')";
     $res = fnQuery($sql);
     if ($res)
-        return true;
+        return getIdStatus($time, $id);
     else
         return false;
 
+}
+
+function getIdStatus($time_post, $id_use)
+{
+    $sql = 'select id from status
+            where time_post = ' . $time_post . '
+            and id_username = ' . $id_use;
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res) > 0)
+        return mysqli_fetch_assoc($res)[ID];
+    else
+        return false;
 }
 
 function logout($id)
@@ -916,12 +953,12 @@ function isLikeStatus($id_username, $id_status)
 function changeLikeStatus($id_username, $id_status)
 {
     $id = isLikeStatus($id_username, $id_status);
-    $type_like = $id==STA_LIKE?STA_UNLIKE:STA_LIKE;
+    $type_like = $id == STA_LIKE ? STA_UNLIKE : STA_LIKE;
     if ($id) {
         $sql = 'update status_like
-                set type_like = '.$type_like.'
-                where id_username = '.$id_username.'
-                and status_id = '.$id_status;
+                set type_like = ' . $type_like . '
+                where id_username = ' . $id_username . '
+                and status_id = ' . $id_status;
         $res = fnQuery($sql);
         if ($res)
             return true;
@@ -934,24 +971,28 @@ function changeLikeStatus($id_username, $id_status)
 
 function likeStatus($id_username, $id_status)
 {
-    if (isLikeStatus($id_username,$id_status))
-        return changeLikeStatus($id_username,$id_status);
-    else{
+    if (isLikeStatus($id_username, $id_status))
+        return changeLikeStatus($id_username, $id_status);
+    else {
         $sql = 'insert into status_like
-                (id_username,status_id,typy_like)
+                (id_username,status_id,type_like)
                 VALUES 
-                ('.$id_username.','.$id_status.','.STA_LIKE.')';
+                (' . $id_username . ',' . $id_status . ',' . STA_LIKE . ')';
         return fnQuery($sql);
     }
 }
 
-function getComment($id){
+function getComment($status_id,$page)
+{
+    $start = (int)($page * NUMBER_EACH_PAGE);
     $list = array();
     $sql = 'select * from status_comment
-            where status_id = '.$id;
+            where status_id = ' . $status_id.'
+            order by time_comment desc
+            limit '.$start.','.NUMBER_EACH_PAGE;
     $res = fnQuery($sql);
-    if (mysqli_num_rows($res)>0){
-        while ($temp = mysqli_fetch_assoc($res)){
+    if (mysqli_num_rows($res) > 0) {
+        while ($temp = mysqli_fetch_assoc($res)) {
             $id_username = $temp[ID_USERNAME];
             $user = getInfoUserById($id_username);
             $temp[USERNAME] = $user[USERNAME];
@@ -961,4 +1002,64 @@ function getComment($id){
     }
     return $list;
 }
+
+function addComment($status_id, $use_id, $comment)
+{
+    $time = time();
+    if (isExistStatus($status_id)) {
+        $sql = "insert into status_comment
+                (status_id,id_username,comment,time_comment)
+                VALUES 
+                (' ". $status_id ." ',' ". $use_id . "','"  . $comment . "','" . $time . "')";
+        $res = fnQuery($sql);
+        if ($res) {
+            return getIdComment($use_id, $time);
+        } else return false;
+
+    } else return false;
+
+}
+
+function getIdComment($use_id, $time_comment)
+{
+    $sql = 'select id from status_comment
+            where id_username = ' . $use_id . '
+            and time_comment = ' . $time_comment;
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res) > 0)
+        return mysqli_fetch_assoc($res)[ID];
+    else
+        return
+            false;
+}
+
+function loadStatusById($page, $id, $fri_id)
+{
+    $list = array();
+    $start = (int)($page * NUMBER_EACH_PAGE);
+    $end = (int)($start + NUMBER_EACH_PAGE);
+    $sql = 'select * from status
+            where id_username =' . $fri_id . '
+            order by time_post desc
+            limit ' . $start . ',' . NUMBER_EACH_PAGE;
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res) > 0) {
+        while ($temp = mysqli_fetch_assoc($res)) {
+            $id_status = $temp[ID];
+            $temp[NUMBER_LIKE] = countLike($id_status);
+            $temp[NUMBER_COMMENT] = countComment($id_status);
+            $is_like = isLikeStatus($id, $id_status);
+            if ($is_like)
+                $temp[TYPE_LIKE] = $is_like;
+            else
+                $temp[TYPE_LIKE] = STA_UNLIKE;
+            $list[] = $temp;
+        }
+    }
+    return $list;
+}
+
+//function getComment($sta_id){
+//
+//}
 ?>
