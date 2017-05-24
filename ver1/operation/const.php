@@ -34,6 +34,7 @@
     define("USERNAME_REQUEST", "username_request");
     define("ID_RECEIVE", "id_receive");
     define("ID_REQUEST", "id_request");
+    define("ID_STATUS", "id_status");
     define("USERNAME_RESPONSE", "username_response");
     define("USERFRIEND", "userfriend");
     define("PASSWORD", "password");
@@ -61,6 +62,8 @@
     define("CODE_MESSAGE",200);
     define("CODE_REQUEST_FRIEND",201);
     define("CODE_RESPONSE_FRIEND",202);
+    define("CODE_LIKE",203);
+    define("CODE_COMMENT",204);
 
     define("CODE_ERROR", 100);
     define("CODE_OK", 101);

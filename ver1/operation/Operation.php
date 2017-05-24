@@ -1025,8 +1025,9 @@ function addComment($status_id, $use_id, $comment)
         } else return false;
 
     } else return false;
-
 }
+
+
 
 function getIdComment($use_id, $time_comment)
 {
@@ -1132,5 +1133,39 @@ function resize_image($dir, $new_width, $new_height, $name)
         imagepng($new_image, $new_name);
     }
 
+}
+
+function getInfoStatus($status_id, $id)
+{
+    $sql = "select * from status
+                where id = '" . $status_id . "'";
+    $res = fnQuery($sql);
+    if (mysqli_num_rows($res) > 0) {
+        $status = mysqli_fetch_assoc($res);
+        $status[NUMBER_LIKE] = countLike($status_id);
+        $is_like = isLikeStatus($id, $status_id);
+        if ($is_like)
+            $status[TYPE_LIKE] = $is_like;
+        else
+            $status[TYPE_LIKE] = STA_UNLIKE;
+        $status[DISPLAYNAME] = getInfoUserById($id)[DISPLAYNAME];
+        return $status;
+    } else return false;
+}
+
+function getIdUsernamePostStatus($status_id){
+    if (isExistStatus($status_id)){
+        $sql = "select id_username 
+                from status
+                where id = '".$status_id."'";
+        $res = fnQuery($sql);
+        if (mysqli_num_rows($res)>0){
+            return mysqli_fetch_assoc($res)[ID_USERNAME];
+        }
+        else
+            return false;
+    }
+    else
+        return false;
 }
 ?>
