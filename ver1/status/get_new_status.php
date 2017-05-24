@@ -12,8 +12,8 @@ if (isset($_POST[TOKEN]) && isset($_POST[TIME])){
     $time = $_POST[TIME];
     $id=getIdUsernameByToken($token);
     if ($id){
-        $res = loadNewStatusFriend($time,$id);
-        responseMessage(CODE_OK,"ok",$res);
+        $res = loadNewStatus($time,$id);
+        responseMessage(CODE_OK,$time,$res);
     }
     else{
         responseMessage(CODE_FAIL,"Token sai",null);

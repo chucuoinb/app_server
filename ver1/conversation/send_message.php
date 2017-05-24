@@ -14,22 +14,22 @@ require_once("../operation/Operation.php");
 $response = array();
 $data = array();
 
-if (isset($_POST[CONVERSATION_ID]) && isset($_POST[MESSAGE]) && isset($_POST[TOKEN])) {
-    $usernameSend = getUsernameByToken($_POST[TOKEN]);
-    $idUsernameSend = getIdUsernameByToken($_POST[TOKEN]);
+if (isset($_GET[CONVERSATION_ID]) && isset($_GET[MESSAGE]) && isset($_GET[TOKEN])) {
+    $usernameSend = getUsernameByToken($_GET[TOKEN]);
+    $idUsernameSend = getIdUsernameByToken($_GET[TOKEN]);
     if ($usernameSend) {
-        $data[CONVERSATION_ID] = $_POST[CONVERSATION_ID];
+        $data[CONVERSATION_ID] = $_GET[CONVERSATION_ID];
         $data[USERNAME_SEND] = $usernameSend;
         $data[ID_USERNAME] = $idUsernameSend;
-        $nameConversation = getNameConversationById($_POST[CONVERSATION_ID]);
+        $nameConversation = getNameConversationById($_GET[CONVERSATION_ID]);
         if ($nameConversation) {
             $data[NAME_CONVERSATION] = $nameConversation;
         } else
             $data[NAME_CONVERSATION] = $usernameSend;
-        $listToken = getListTokenByIdConversation($_POST[CONVERSATION_ID], $_POST[MESSAGE], $idUsernameSend);
+        $listToken = getListTokenByIdConversation($_GET[CONVERSATION_ID], $_GET[MESSAGE], $idUsernameSend);
         if ($listToken) {
 
-            $push = new PushToFcm(CODE_MESSAGE, $_POST[MESSAGE], $data);
+            $push = new PushToFcm(CODE_MESSAGE, $_GET[MESSAGE], $data);
             $pushNotify = $push->getPut();
             $firebase = new Firebase();
             $res = $firebase->send($listToken, $pushNotify);
@@ -40,7 +40,7 @@ if (isset($_POST[CONVERSATION_ID]) && isset($_POST[MESSAGE]) && isset($_POST[TOK
         } else
             responseMessage(CODE_OK, "ok", null);
     }else
-        responseMessage(CODE_FAIL, $_POST[TOKEN], null);
+        responseMessage(CODE_FAIL, $_GET[TOKEN], null);
 } else
     responseMessage(CODE_FAIL, "fail data", null);
 ?>

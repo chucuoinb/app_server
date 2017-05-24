@@ -133,7 +133,7 @@ function Login($username, $password, $fcm_token)
     $result = fnQuery($sql);
     if (mysqli_num_rows($result) > 0) {
         do {
-            $token = CreateToken(50);
+            $token = createToken(50);
         } while (IsTokenEsixt($token));
         $data = array();
         $data[TOKEN] = $token;
@@ -184,7 +184,7 @@ function responseMessage($code, $message, $data)
 }
 
 //create token
-function CreateToken($length)
+function createToken($length)
 {
     $key = '';
     $keys = array_merge(range(0, 9), range('a', 'z'));
@@ -755,7 +755,6 @@ function loadStatus1($page, $token)
         $start = 1;
     else
         $start = (int)($page * NUMBER_EACH_PAGE);
-    echo $start;
     $end = (int)($start + NUMBER_EACH_PAGE);
     $listId = getListFriend($token);
     if ($listId) {
@@ -856,14 +855,22 @@ function loadNewStatus($time, $id)
             from friend
             WHERE id_username = '" . $id . "'
             ))
-            and time_post>'" . $time . "'
+            and time_post > " . $time . "
             order by time_post desc
-            limit $start,'".NUMBER_EACH_PAGE."'
+            limit $start,".NUMBER_EACH_PAGE."
             ";
     $res = fnQuery($sql);
     if (mysqli_num_rows($res) > 0) {
-        while ($item = mysqli_fetch_assoc($res)) {
-            $list[] = $item;
+        while ($temp = mysqli_fetch_assoc($res)) {
+            $id_status = $temp[ID];
+            $temp[NUMBER_LIKE] = countLike($id_status);
+            $temp[NUMBER_COMMENT] = countComment($id_status);
+            $is_like = isLikeStatus($id, $id_status);
+            if ($is_like)
+                $temp[TYPE_LIKE] = $is_like;
+            else
+                $temp[TYPE_LIKE] = STA_UNLIKE;
+            $list[] = $temp;
         }
     }
     return $list;
@@ -878,10 +885,11 @@ function loadNewStatusFriend($time, $fri_id)
             from 
             status
             where id_username = '" . $fri_id . "'
-            and time_post>'" . $time . "'
+            and time_post > " . $time . "
             order by time_post desc
             limit $start,$end
             ";
+//    echo $sql;
     $res = fnQuery($sql);
     if (mysqli_num_rows($res) > 0) {
         while ($item = mysqli_fetch_assoc($res)) {
@@ -1059,7 +1067,70 @@ function loadStatusById($page, $id, $fri_id)
     return $list;
 }
 
-//function getComment($sta_id){
-//
-//}
+function uploadAvatar($time, $name_file, $target_dir)
+{
+    $uploadOk = 1;
+    $imageFileType = pathinfo($_FILES["$name_file"]["name"], PATHINFO_EXTENSION);
+    $name = createToken(3) . $time . "." . $imageFileType;
+    $target_file = $target_dir . basename($name);
+
+    if (file_exists($target_file)) {
+        $uploadOk = 0;
+    }
+    if ($_FILES["$name_file"]["size"] > 1024 * 1024) {
+        $uploadOk = 0;
+    }
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+        && $imageFileType != "gif"
+    ) {
+        $uploadOk = 0;
+    }
+    if ($uploadOk == 0) {
+        return false;
+    } else {
+        if (move_uploaded_file($_FILES["$name_file"]["tmp_name"], $target_file)) {
+            resize_image($target_dir, 100, 100, $name);
+            resize_image($target_dir, 150, 150, $name);
+            return $name;
+        } else {
+            return false;
+
+        }
+    }
+}
+
+function resize_image($dir, $new_width, $new_height, $name)
+{
+    $name_file = $dir . $name;
+    $image_info = getimagesize($name_file);
+    $type = $image_info[2];
+    $new_image = imagecreatetruecolor($new_width, $new_height);
+    if ($type == IMAGETYPE_JPEG) {
+
+        $image = imagecreatefromjpeg($name_file);
+    } elseif ($type == IMAGETYPE_GIF) {
+
+        $image = imagecreatefromgif($name_file);
+    } elseif ($type == IMAGETYPE_PNG) {
+        $image = imagecreatefrompng($name_file);
+        $background = imagecolorallocate($new_image, 0, 0, 0);
+        // remove the black
+        imagecolortransparent($new_image, $background);
+        imagealphablending($new_image, false);
+        imagesavealpha($new_image, true);
+    }
+    imagecopyresampled($new_image, $image, 0, 0, 0, 0, $new_width, $new_height, imagesx($image), imagesy($image));
+    if (!file_exists($dir . $new_width . "x" . $new_height) && !is_dir($dir . $new_width . "x" . $new_height)) {
+        mkdir($dir . $new_width . "x" . $new_height);
+    }
+    $new_name = $dir . $new_width . "x" . $new_height . "/" . $name;
+    if ($type == IMAGETYPE_JPEG) {
+        imagejpeg($new_image, $new_name);
+    } elseif ($type == IMAGETYPE_GIF) {
+        imagegif($new_image, $new_name);
+    } elseif ($type == IMAGETYPE_PNG) {
+        imagepng($new_image, $new_name);
+    }
+
+}
 ?>

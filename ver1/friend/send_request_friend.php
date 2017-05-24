@@ -13,15 +13,15 @@ require_once("../operation/loader.php");
 require_once("../operation/Operation.php");
 $list_fcm_receive_request = array();
 $data = array();
-if(isset($_POST[ID_RECEIVE]) && isset($_POST[TOKEN])){
-    $message = (isset($_POST[MESSAGE]))?$_POST[MESSAGE]:"";
+if (isset($_POST[ID_RECEIVE]) && isset($_POST[TOKEN])) {
+    $message = (isset($_POST[MESSAGE])) ? $_POST[MESSAGE] : "";
     $idSendRequest = getIdUsernameByToken($_POST[TOKEN]);
-    if($idSendRequest){
-        if(addRequestFriend($idSendRequest,$_POST[ID_RECEIVE],$message)) {
+    if ($idSendRequest) {
+        if (addRequestFriend($idSendRequest, $_POST[ID_RECEIVE], $message)) {
             $fcm_receive_request = getFcmTokenByIdUsername($_POST[ID_RECEIVE]);
 
             if ($fcm_receive_request) {
-                array_push($list_fcm_receive_request,$fcm_receive_request);
+                array_push($list_fcm_receive_request, $fcm_receive_request);
                 $data[MESSAGE] = $message;
                 $data[USERNAME_REQUEST] = getUsernameById($idSendRequest);
                 $data[ID_REQUEST] = $idSendRequest;
@@ -29,16 +29,11 @@ if(isset($_POST[ID_RECEIVE]) && isset($_POST[TOKEN])){
                 $pustNotify = $push->getPut();
                 $firebase = new Firebase();
                 $res = $firebase->send($list_fcm_receive_request, $pustNotify);
-                if ($res) {
-                    responseMessage(CODE_OK, "success", null);
-                } else
-                    responseMessage(CODE_FAIL, "fail", null);
-            }else
-                responseMessage(CODE_ERROR, "don't have FCM token", null);
-        }
-        else
+            }
+            responseMessage(CODE_OK, "success", null);
+        } else
             responseMessage(CODE_ERROR, "don't add", null);
-    }else
+    } else
         responseMessage(CODE_ERROR, "token k ton tai", null);
-}else
+} else
     responseMessage(CODE_ERROR, "duu lieu loi", null);

@@ -42,7 +42,7 @@ if (isset($_POST[TOKEN]) && isset($_POST[ID_RECEIVE]) && isset($_POST[CODE_RESPO
             }
         }
         deleteRequestFriend($id_request);
-        responseMessage(CODE_OK, "insert, don't send", $friend);
+        responseMessage(CODE_OK, "", $friend);
     } else
         responseMessage(CODE_ERROR, " token loi", null);
 } else

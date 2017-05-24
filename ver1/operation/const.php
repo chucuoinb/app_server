@@ -71,7 +71,7 @@
     define("CODE_USER_NOT_EXIST", 106);
 
 
-    define("NUMBER_EACH_PAGE", 6);
+    define("NUMBER_EACH_PAGE", 15);
     define("PAGE", "page");
 
     define("STA_LIKE",1);
